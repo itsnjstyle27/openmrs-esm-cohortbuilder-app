@@ -1,4 +1,4 @@
-import { composeJson } from '../../cohort-builder.utils';
+import { composeJson, formatDate } from '../../cohort-builder.utils';
 import { type DropdownValue } from '../../types';
 
 interface EnrollmentsSearchParams {
@@ -51,12 +51,28 @@ export const getQueryDetails = ({
   return queryDetails;
 };
 
-export const getDescription = ({ selectedPrograms, selectedLocations }: EnrollmentsSearchParams) => {
+const describeDates = (label: string, onOrAfter: string, onOrBefore: string) => {
+  const since = onOrAfter ? ` since ${formatDate(onOrAfter)}` : '';
+  const until = onOrBefore ? ` until ${formatDate(onOrBefore)}` : '';
+  return since || until ? `, ${label}${since}${until}` : '';
+};
+
+export const getDescription = ({
+  enrolledOnOrAfter,
+  enrolledOnOrBefore,
+  completedOnOrAfter,
+  completedOnOrBefore,
+  selectedPrograms,
+  selectedLocations,
+}: EnrollmentsSearchParams) => {
   let description = `Patients enrolled in ${selectedPrograms?.map((location) => location.label).join(', ')}`;
 
   if (selectedLocations?.length) {
     description = description + ` at ${selectedLocations?.map((location) => location.label).join(', ')}`;
   }
+
+  description += describeDates('enrolled', enrolledOnOrAfter, enrolledOnOrBefore);
+  description += describeDates('completed', completedOnOrAfter, completedOnOrBefore);
 
   return description;
 };
