@@ -179,6 +179,6 @@ export const downloadCSV = (data, filename) => {
 
   const pom = document.createElement('a');
   pom.href = url;
-  pom.setAttribute('download', filename);
+  pom.setAttribute('download', `${filename}.csv`);
   pom.click();
 };
