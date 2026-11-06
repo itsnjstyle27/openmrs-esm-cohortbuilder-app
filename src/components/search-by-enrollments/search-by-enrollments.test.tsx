@@ -212,9 +212,31 @@ describe('Test the search by enrollments component', () => {
     await user.click(screen.getByTestId('reset-btn'));
 
     expect(screen.queryByTitle(/clear all selected items/i)).not.toBeInTheDocument();
+    await user.click(screen.getByText(/select programs/i));
+    await user.click(screen.getByText(mockPrograms[1].label));
     await user.click(screen.getByTestId('search-btn'));
     await waitFor(() => expect(mockSubmit).toHaveBeenCalledTimes(1));
     expect(mockSubmit.mock.calls[0][1]).not.toContain(mockPrograms[0].label);
     expect(mockSubmit.mock.calls[0][1]).not.toContain(mockLocations[2].label);
+  });
+
+  it('should keep Search disabled until a program is selected', async () => {
+    const user = userEvent.setup();
+    mockUsePrograms.mockImplementation(() => ({ programs: mockPrograms, isLoading: false, programsError: undefined }));
+    mockUseLocations.mockImplementation(() => ({
+      locations: mockLocations,
+      isLoading: false,
+      locationsError: undefined,
+    }));
+    render(<SearchByEnrollments onSubmit={vi.fn()} />);
+
+    expect(screen.getByTestId('search-btn')).toBeDisabled();
+
+    await user.click(screen.getByText(/select programs/i));
+    await user.click(screen.getByText(mockPrograms[0].label));
+    expect(screen.getByTestId('search-btn')).toBeEnabled();
+
+    await user.click(screen.getByTestId('reset-btn'));
+    expect(screen.getByTestId('search-btn')).toBeDisabled();
   });
 });

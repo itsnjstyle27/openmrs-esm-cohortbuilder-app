@@ -136,7 +136,12 @@ const SearchByEnrollments: React.FC<SearchByProps> = ({ onSubmit }) => {
           />
         </Column>
       </div>
-      <SearchButtonSet onHandleReset={handleResetInputs} onHandleSubmit={submit} isLoading={isLoading} />
+      <SearchButtonSet
+        onHandleReset={handleResetInputs}
+        onHandleSubmit={submit}
+        isLoading={isLoading}
+        isSearchDisabled={!selectedPrograms.length}
+      />
     </>
   );
 };

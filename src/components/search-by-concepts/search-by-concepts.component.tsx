@@ -291,7 +291,12 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
           </Column>
         </div>
       </div>
-      <SearchButtonSet isLoading={isLoading} onHandleSubmit={handleSubmit} onHandleReset={handleReset} />
+      <SearchButtonSet
+        isLoading={isLoading}
+        isSearchDisabled={!concept}
+        onHandleSubmit={handleSubmit}
+        onHandleReset={handleReset}
+      />
     </>
   );
 };

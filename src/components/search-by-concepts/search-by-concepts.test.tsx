@@ -195,6 +195,20 @@ describe('Test the search by concept component', () => {
     },
   );
 
+  it('keeps Search disabled until a concept is selected', async () => {
+    const user = userEvent.setup();
+    render(<SearchByConcepts onSubmit={vi.fn()} />);
+
+    expect(screen.getByTestId('search-btn')).toBeDisabled();
+
+    await user.type(screen.getByPlaceholderText('Search Concepts'), 'blood sugar');
+    await user.click(await screen.findByText('BLOOD SUGAR'));
+    expect(screen.getByTestId('search-btn')).toBeEnabled();
+
+    await user.click(screen.getByTestId('reset-btn'));
+    expect(screen.getByTestId('search-btn')).toBeDisabled();
+  });
+
   it('shows the first time modifier again on Reset before a concept is picked again', async () => {
     const user = userEvent.setup();
     render(<SearchByConcepts onSubmit={vi.fn()} />);
