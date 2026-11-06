@@ -195,6 +195,28 @@ describe('Test the search by concept component', () => {
     },
   );
 
+  it.each([
+    ['ST', 'textObsSearchAdvanced'],
+    ['DT', 'dateObsSearchAdvanced'],
+    ['TS', 'dateObsSearchAdvanced'],
+    ['TM', 'dateObsSearchAdvanced'],
+  ])('searches a concept of datatype %s with %s', async (hl7Abbrev, definition) => {
+    const user = userEvent.setup();
+    const mockSubmit = vi.fn();
+    const defaultGetConcepts = mockGetConcepts.getMockImplementation();
+    mockGetConcepts.mockImplementation(() => Promise.resolve([{ ...concepts[0], hl7Abbrev, name: 'Some concept' }]));
+    render(<SearchByConcepts onSubmit={mockSubmit} />);
+
+    await user.type(screen.getByPlaceholderText('Search Concepts'), 'some concept');
+    await user.click(await screen.findByText('Some concept'));
+    await user.click(screen.getByTestId('search-btn'));
+
+    mockGetConcepts.mockImplementation(defaultGetConcepts);
+    expect(mockSubmit.mock.calls[0][0].query.rowFilters[0].key).toBe(
+      `reporting.library.cohortDefinition.builtIn.${definition}`,
+    );
+  });
+
   it('shows the first time modifier again on Reset before a concept is picked again', async () => {
     const user = userEvent.setup();
     render(<SearchByConcepts onSubmit={vi.fn()} />);

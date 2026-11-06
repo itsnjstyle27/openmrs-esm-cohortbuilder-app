@@ -51,8 +51,9 @@ const types = {
   CWE: 'codedObsSearchAdvanced',
   NM: 'numericObsSearchAdvanced',
   DT: 'dateObsSearchAdvanced',
-  ST: 'dateObsSearchAdvanced',
-  TS: 'textObsSearchAdvanced',
+  TS: 'dateObsSearchAdvanced',
+  TM: 'dateObsSearchAdvanced',
+  ST: 'textObsSearchAdvanced',
   ZZ: 'codedObsSearchAdvanced',
   BIT: 'codedObsSearchAdvanced',
 };
