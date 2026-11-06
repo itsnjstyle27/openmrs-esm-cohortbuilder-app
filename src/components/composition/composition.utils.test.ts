@@ -35,6 +35,22 @@ describe('isCompositionValid', () => {
   );
 });
 
+describe('isCompositionValid with tokens in the wrong order', () => {
+  it.each(['1 AND', 'AND 1', '1 2', '1 AND OR 2', 'NOT', '1 NOT 2', '()', '(1 OR 2', '1 OR 2)', ')1(', '(1 AND) 2'])(
+    'rejects %j',
+    (composition) => {
+      expect(isCompositionValid(composition)).toBe(false);
+    },
+  );
+
+  it.each(['1', 'NOT 1', 'NOT NOT 1', 'NOT (1 OR 2)', '(1)', '((1))', '1 AND (NOT 2 OR 3)'])(
+    'accepts %j',
+    (composition) => {
+      expect(isCompositionValid(composition)).toBe(true);
+    },
+  );
+});
+
 describe('createCompositionQuery', () => {
   beforeEach(() => {
     window.sessionStorage.clear();

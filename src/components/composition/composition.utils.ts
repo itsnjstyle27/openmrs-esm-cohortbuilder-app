@@ -7,8 +7,36 @@ const tokenizeComposition = (search: string) =>
     .trim()
     .split(/\s+/);
 
+/** Whether the tokens read as operands joined by operators, where an operand is a number, NOT and an operand, or brackets. */
+const isWellFormed = (tokens: string[]) => {
+  let depth = 0;
+  let expectOperand = true;
+  for (const token of tokens) {
+    if (expectOperand) {
+      if (/^\d+$/.test(token)) {
+        expectOperand = false;
+      } else if (token === '(') {
+        depth++;
+      } else if (!/^not$/i.test(token)) {
+        return false;
+      }
+    } else if (token === ')') {
+      depth--;
+      if (depth < 0) {
+        return false;
+      }
+    } else if (/^(and|or|union|intersection)$/i.test(token)) {
+      expectOperand = true;
+    } else {
+      return false;
+    }
+  }
+  return depth === 0 && !expectOperand;
+};
+
 export const isCompositionValid = (search: string) => {
-  return tokenizeComposition(search).every((token) => /^(and|or|not|union|intersection|\d+|[()])$/i.test(token));
+  const tokens = tokenizeComposition(search);
+  return tokens.every((token) => /^(and|or|not|union|intersection|\d+|[()])$/i.test(token)) && isWellFormed(tokens);
 };
 
 const formatFilterCombination = (filterText: string, numberOfSearches: number) => {
