@@ -1,8 +1,11 @@
 import React from 'react';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import userEvent from '@testing-library/user-event';
-import { render, screen } from '@testing-library/react';
+import { act, render, screen, within } from '@testing-library/react';
+import { showModal } from '@openmrs/esm-framework';
 import SearchHistory from './search-history.component';
+
+const mockShowModal = vi.mocked(showModal);
 
 const mockGetSearchHistory = vi.fn();
 
@@ -130,5 +133,45 @@ describe('Test the search history component', () => {
     updateHistory(history);
     expect(screen.getByText('Search 1')).toBeInTheDocument();
     expect(screen.queryByText('Search 11')).not.toBeInTheDocument();
+  });
+
+  it('should number the remaining searches from 1 after one is deleted', async () => {
+    const user = userEvent.setup();
+    const history = ['First', 'Second', 'Third'].map((description, i) => ({
+      ...mockSearchHistory[0],
+      id: `${i + 1}`,
+      description,
+    }));
+    mockGetSearchHistory.mockReturnValue(history);
+    window.sessionStorage.setItem('openmrsHistory', JSON.stringify(history));
+
+    render(<SearchHistory isHistoryUpdated={true} setIsHistoryUpdated={vi.fn()} />);
+
+    await user.click(screen.getAllByRole('button', { name: /options/i })[0]);
+    await user.click(screen.getByText(/delete from history/i));
+    const [, modalProps] = mockShowModal.mock.calls.find(
+      ([modalName]) => modalName === 'clear-item-from-search-history-modal',
+    );
+    await act(async () => (modalProps as { onRemove: () => Promise<void> }).onRemove());
+
+    const shownRows = screen
+      .getAllByRole('row')
+      .slice(1)
+      .map((row) =>
+        within(row)
+          .getAllByRole('cell')
+          .slice(0, 2)
+          .map((cell) => cell.textContent),
+      );
+    expect(shownRows).toEqual([
+      ['1', 'Second'],
+      ['2', 'Third'],
+    ]);
+
+    const storedHistory = JSON.parse(window.sessionStorage.getItem('openmrsHistory'));
+    expect(storedHistory.map(({ id, description }) => [id, description])).toEqual([
+      ['1', 'Second'],
+      ['2', 'Third'],
+    ]);
   });
 });

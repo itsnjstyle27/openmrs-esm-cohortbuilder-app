@@ -63,9 +63,10 @@ const SearchHistory: React.FC<SearchHistoryProps> = ({ isHistoryUpdated, setIsHi
   };
 
   const updateSearchHistory = (selectedSearchItem: SearchHistoryItem) => {
-    const updatedSearchResults = [...searchResults].filter(
-      (searchResult, index) => index != searchResults.indexOf(selectedSearchItem),
-    );
+    // Composition refers to searches by their position in the history, so number the rest again from 1.
+    const updatedSearchResults = searchResults
+      .filter((searchResult) => searchResult !== selectedSearchItem)
+      .map((searchResult, index) => ({ ...searchResult, id: (index + 1).toString() }));
     setSearchResults(updatedSearchResults);
     window.sessionStorage.setItem('openmrsHistory', JSON.stringify(updatedSearchResults));
   };
